@@ -36,6 +36,42 @@ int BasicMenu()
 	}
 }
 
+int FactorialMenu()
+{
+	string number;
+	FancyWords("Please enter the number you would like the factorial of\n> ");
+	cin >> number;
+	long int result;
+	if (!VerifyFactorial(number, result))
+	{
+		if (result == -1)
+		{
+			FancyWords("\nI'm sorry that number is out of bounds.\nWould you like to try again?\n");
+		}
+		else if (result == -2)
+		{
+			FancyWords("\nI'm sorry I couldn't recognize that number.\nWould you like to try again?\n");
+		}
+	}
+	else
+	{
+		FancyWords("\n" + number + "! = " + to_string(Factorial(result)));
+		FancyWords("\nWould you like to do another factorial, return to the main menu or exit the program\n");
+	}
+	string myArray[] = { "Factorial", "Main menu", "Exit" };
+	switch (menuUtil(myArray, 3))
+	{
+	case 1:
+		return 3;
+	case 2:
+		return 0;
+	case 3:
+		return 4;
+	default:
+		break;
+	}
+}
+
 
 
 
@@ -59,6 +95,7 @@ int main()
 		case 2:
 			break;
 		case 3:
+			currentMenu = FactorialMenu();
 			break;
 		case 4:
 			cont = false;

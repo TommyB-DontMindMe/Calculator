@@ -20,7 +20,12 @@ void FancyWords(string words, int delay = 80, int variance = 40)
 
 
 
-
+/// <summary>
+/// A function to create simple menus
+/// </summary>
+/// <param name="options"> An array containing the name(string) of each option you want on the menu </param>
+/// <param name="optionCount"> How many options the menu will have. Should equal the size of the "options" array </param>
+/// <returns> The value corresponding with the selected option, valid options begin at 1, 0 is reserved for error handling </returns>
 int menuUtil(string options[], int optionCount)
 {
 	for (size_t i = 0; i < optionCount; i++)

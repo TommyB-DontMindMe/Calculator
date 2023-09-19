@@ -93,13 +93,47 @@ int ParseSimple(string input)
 	return result;
 }
 
+long int Factorial(long int n)
+{
+	if (n == 1 || n==0)
+	{
+		return 1;
+	}
+	else
+	{
+		return n * Factorial(n - 1);
+	}
+}
+
+bool VerifyFactorial(string input, long int &n)
+{
+	try
+	{
+		n = stoi(input);
+	}
+	catch (const std::exception&)
+	{
+		n = -2;
+		return false;
+	}
+	if (n > 12 || n < 0)
+	{
+		n = -1;
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+
+
 
 const int polyTermMax = 15;
 struct Polynom
 {
 	int coefficient[polyTermMax];
-	int factor[polyTermMax];
-	int order;
 };
 /*
 string Polynomial_toString(Polynomial input)
@@ -108,19 +142,101 @@ string Polynomial_toString(Polynomial input)
 
 }
 */
+string WritePolynom(Polynom input)
+{
+	string output = "";
+	for (size_t i = 0; i < polyTermMax; i++)
+	{
+		int cachedI = polyTermMax - 1 - i;
+		if (input.coefficient[cachedI] != 0)
+		{
+			if (input.coefficient[cachedI] != 1)
+				output += input.coefficient[cachedI];
+			if (cachedI != 0)
+			{
+				output += "X";
+				if (cachedI != 1)
+					output += "^" + to_string(cachedI);
+			}
+		}
+		output += to_string(input.coefficient[polyTermMax - i]);
+	}
+	return output;
+}
 
+
+/// <summary>
+/// takes a string with the format "(int)x^(int)+/-(int)x^(int)..."
+/// </summary>
+/// <param name="input"> The string to be parsed </param>
+/// <returns> Returns a Polynom struct </returns>
 Polynom ParsePolynom(string input)
 {
 	string currentProcess = "";
+	int unplacedCof;
 	int currentTerm = 0;
+	bool cofOrFct = true;
+	Polynom output = {};
 
 
-	Polynom output;
-	output.coefficient[0] = 1;
-	output.factor[0] = 2;
-	// as I iterate through factors, compare with output.order and store the larger value
-	// That is: output.factor[currentTerm] = stoi(currentProcess); output.order = Max(output.order, output.factor[currentTerm]);
-	output.order ;
+	for (size_t i = 0; i < input.size(); i++)
+	{
+		if (cofOrFct)
+		{
+			if (input[i] == 'x')
+			{
+				if (currentProcess == "")
+				{
+					unplacedCof = 1;
+				}
+				else
+				{
+					try
+					{
+						unplacedCof = stoi(currentProcess);
+					}
+					catch (const std::exception&)
+					{
+
+					}
+				}
+				currentProcess = "";
+				cofOrFct = false;
+			}
+			else
+			{
+				currentProcess += input[i];
+			}
+		}
+		else
+		{
+			if (input[i] == '+' || input[i] == '-')
+			{
+				try
+				{
+					currentTerm = stoi(currentProcess);
+				}
+				catch (const std::exception&)
+				{
+
+				}
+				output.coefficient[currentTerm] = unplacedCof;
+				currentProcess = "";
+				if (input[i] == '-')
+					currentProcess += '-';
+				cofOrFct = true;
+			}
+			else if (input[i] == '^')
+			{
+
+			}
+			else
+			{
+				currentProcess += input[i];
+			}
+		}
+	}
+
 	return output;
 }
 
