@@ -19,8 +19,13 @@ int BasicMenu()
 	string equation;
 	FancyWords("Please enter a simple equation. Use +, -, * or / and only two terms\n> ");
 	cin >> equation;
-	int result = ParseSimple(equation);
+	int remainder = NULL;
+	int result = ParseSimple(equation, &remainder);
 	FancyWords("\n" + equation + " gives a result of " + to_string(result));
+	if (remainder != NULL)
+	{
+		FancyWords(", with a remainder of " + to_string(remainder));
+	}
 	FancyWords("\nWould you like to do another simple equation, return to the main menu or exit the program\n");
 	string myArray[] = { "Basic", "Main menu", "Exit" };
 	switch (menuUtil(myArray, 3))

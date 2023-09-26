@@ -23,13 +23,18 @@ int Division(int a, int b)
 {
 	return a / b;
 }
-int Division(int a, int b, int& remainder)
+int Division(int a, int b, int* remainder)
 {
-	remainder = a % b;
+	*remainder = a % b;
 	return a / b;
 }
 
-int ParseSimple(string input)
+/// <summary>
+/// Recognizes the two terms and the operator of a simple equation
+/// </summary>
+/// <param name="input">A simple equation in the form of a string</param>
+/// <returns>The result of the equation</returns>
+int ParseSimple(string input, int* remainder = nullptr)
 {
 	int termA = 0;
 	int termB = 0;
@@ -89,7 +94,7 @@ int ParseSimple(string input)
 	}
 	else if (mOperator == '/')
 	{
-		result = Division(termA, termB);
+		result = Division(termA, termB, remainder);
 	}
 	return result;
 }
@@ -106,6 +111,12 @@ unsigned long long int Factorial(unsigned long long int n)
 	}
 }
 
+/// <summary>
+/// Checks to make sure the provided variable is within range of what the Factorial function can handle
+/// </summary>
+/// <param name="input">The value provided in the form of a string, should be a number</param>
+/// <param name="n">The variable that will hold the value </param>
+/// <returns>Returns true if the string provided is a value within the range of what the factorial function can handle</returns>
 bool VerifyFactorial(string input, unsigned long long int &n)
 {
 	try
@@ -137,6 +148,11 @@ struct Polynom
 	int coefficient[polyTermMax];
 };
 
+/// <summary>
+/// Gives a string from a polynom
+/// </summary>
+/// <param name="input">Takes a Polynom struct</param>
+/// <returns>Returns a polynom as a string</returns>
 string WritePolynom(Polynom input)
 {
 	string output = "";
