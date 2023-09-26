@@ -47,3 +47,8 @@ int menuUtil(string options[], int optionCount)
 	} while (invalidInput);
 	return 0;
 }
+
+bool isInt(char n)
+{
+	return (n >= 48 && n <= 57);
+}

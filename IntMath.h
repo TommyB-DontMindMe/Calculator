@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <algorithm>
+#include "myUtils.h"
 using namespace std;
 
 int Addition(int a, int b)
@@ -93,7 +94,7 @@ int ParseSimple(string input)
 	return result;
 }
 
-long int Factorial(long int n)
+unsigned long long int Factorial(unsigned long long int n)
 {
 	if (n == 1 || n==0)
 	{
@@ -105,7 +106,7 @@ long int Factorial(long int n)
 	}
 }
 
-bool VerifyFactorial(string input, long int &n)
+bool VerifyFactorial(string input, unsigned long long int &n)
 {
 	try
 	{
@@ -116,7 +117,7 @@ bool VerifyFactorial(string input, long int &n)
 		n = -2;
 		return false;
 	}
-	if (n > 12 || n < 0)
+	if (n > 20 || n < 0)
 	{
 		n = -1;
 		return false;
@@ -135,45 +136,50 @@ struct Polynom
 {
 	int coefficient[polyTermMax];
 };
-/*
-string Polynomial_toString(Polynomial input)
-{
-	string output = "";
 
-}
-*/
 string WritePolynom(Polynom input)
 {
 	string output = "";
-	for (size_t i = 0; i < polyTermMax; i++)
+	for (size_t i = polyTermMax; i > 0; i--)
 	{
-		int cachedI = polyTermMax - 1 - i;
-		if (input.coefficient[cachedI] != 0)
+		if (input.coefficient[i-1] != 0)
 		{
-			if (input.coefficient[cachedI] != 1)
-				output += input.coefficient[cachedI];
-			if (cachedI != 0)
+			if (output != "" && input.coefficient[i-1] > 0)
 			{
-				output += "X";
-				if (cachedI != 1)
-					output += "^" + to_string(cachedI);
+				output += '+';
 			}
+
+			if (input.coefficient[i-1] != 1)
+			{
+				output += to_string(input.coefficient[i-1]);
+			}
+			if (i-1 != 0)
+			{
+				output += 'X';
+				if (i-1 != 1)
+				{
+					output += '^';
+					output += to_string(i-1);
+				}
+			}
+			// cof 0, move on to next cof
+			// cof 1, skip n
+			// fct 0, skip "X^"
 		}
-		output += to_string(input.coefficient[polyTermMax - i]);
 	}
 	return output;
 }
 
 
 /// <summary>
-/// takes a string with the format "(int)x^(int)+/-(int)x^(int)..."
+/// takes a string with the format "(int)x^(int)+-(int)x^(int)..."
 /// </summary>
 /// <param name="input"> The string to be parsed </param>
 /// <returns> Returns a Polynom struct </returns>
 Polynom ParsePolynom(string input)
 {
 	string currentProcess = "";
-	int unplacedCof;
+	int uCof;
 	int currentTerm = 0;
 	bool cofOrFct = true;
 	Polynom output = {};
@@ -183,75 +189,111 @@ Polynom ParsePolynom(string input)
 	{
 		if (cofOrFct)
 		{
-			if (input[i] == 'x')
+			if (isInt(input[i]) || i == 0 && input[i] == '-')
 			{
+				currentProcess += input[i];
+			}
+			else if (input[i] == 'X' || input[i] == 'x')
+			{
+				cofOrFct = false;
 				if (currentProcess == "")
 				{
-					unplacedCof = 1;
+					uCof = 1;
+				}
+				else if (currentProcess == "-")
+				{
+					uCof = -1;
 				}
 				else
 				{
-					try
-					{
-						unplacedCof = stoi(currentProcess);
-					}
-					catch (const std::exception&)
-					{
-
-					}
+					uCof = stoi(currentProcess);
+					currentProcess = "";
 				}
-				currentProcess = "";
-				cofOrFct = false;
 			}
-			else
-			{
-				currentProcess += input[i];
-			}
+			// if n1+n2 then n1 && n2 >> fct = 0
 		}
 		else
 		{
-			if (input[i] == '+' || input[i] == '-')
-			{
-				try
-				{
-					currentTerm = stoi(currentProcess);
-				}
-				catch (const std::exception&)
-				{
-
-				}
-				output.coefficient[currentTerm] = unplacedCof;
-				currentProcess = "";
-				if (input[i] == '-')
-					currentProcess += '-';
-				cofOrFct = true;
-			}
-			else if (input[i] == '^')
-			{
-
-			}
-			else
+			if (isInt(input[i]))
 			{
 				currentProcess += input[i];
 			}
+			else if (input[i] == '+' || input[i] == '-')
+			{
+				cofOrFct = true;
+				if (currentProcess == "")
+				{
+					output.coefficient[1] = uCof;
+				}
+				else
+				{
+					output.coefficient[stoi(currentProcess)] = uCof;
+					currentProcess = "";
+				}
+				if (input[i] == '-')
+					currentProcess += '-';
+			}
+
+				// Potential issue: enter multiple terms with the same factor only saves the last one.
+			
+		}
+	}
+	if (currentProcess != "")
+	{
+		if (cofOrFct)
+		{
+			output.coefficient[0] = stoi(currentProcess);
+		}
+		else
+		{
+			output.coefficient[stoi(currentProcess)] = uCof;
 		}
 	}
 
 	return output;
 }
 
-/*
-	Polynom addition (Polynom A + Polynom B)
-	Polynom output
-	for (Max(A.order, B.order))
-		output.coefficient[i] = A.coefficient[i] + B.coefficient[i]
+
+Polynom Addition(Polynom a, Polynom b)
+{
+	Polynom output;
+	for (size_t i = 0; i < polyTermMax; i++)
+	{
+		output.coefficient[i] = a.coefficient[i] + b.coefficient[i];
+	}
 	return output;
+}
 
-	Polynom Multiplication (Polynom A + Polynom B)
-	Polynom output
-	for (Max(A.order, B.order)
-		output.coefficient[i] = A.coefficient[i] * B.coefficient[i]
-		output.factor[i] = A.factor[i] + B.factor[i]
+Polynom Multiplication(Polynom a, Polynom b)
+{
+	Polynom output{};
+	for (size_t i = 0; i < polyTermMax; i++)
+	{
+		if (a.coefficient[i] == 0)
+		{
+			continue;
+		}
+		for (size_t n = 0; n < polyTermMax; n++)
+		{
+			if (b.coefficient[n] != 0)
+			{
+				Polynom temp{};
+				temp.coefficient[i + n] = a.coefficient[i] * b.coefficient[n];
+				output = Addition(output, temp);
+			}
+		}
+	}
+	return output;
+}
 
-
-*/
+Polynom Derivation(Polynom input)
+{
+	Polynom output{};
+	for (size_t i = 0; i < polyTermMax; i++)
+	{
+		if (i == 0)
+			continue;
+		output.coefficient[i - 1] = input.coefficient[i] * i;
+	}
+	return output;
+}
